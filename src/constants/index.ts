@@ -1,5 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
 import {resolve} from 'path';
 
 export const JSON_FOLDER = resolve(__dirname, '..', 'mocks', 'json_data');
