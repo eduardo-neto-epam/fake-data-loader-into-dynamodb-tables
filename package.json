@@ -14,8 +14,8 @@
     "posttest": "npm run lint",
     "load-data": "npm run prepare && node build/src/index.js",
     "list-tables": "aws dynamodb list-tables",
-    "scan-products": "aws dynamodb scan --table-name products",
-    "scan-stocks": "aws dynamodb scan --table-name stocks"
+    "scan-products": "aws dynamodb scan --table-name Product",
+    "scan-stocks": "aws dynamodb scan --table-name Stock"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0"

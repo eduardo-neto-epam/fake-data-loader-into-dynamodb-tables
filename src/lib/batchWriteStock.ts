@@ -12,8 +12,8 @@ import {BatchWriteItems, Product} from '../types';
  */
 export const batchWriteStock: (
   products: Product[]
-) => BatchWriteItems<'stocks'> = products => ({
-  stocks: products.map(product => ({
+) => BatchWriteItems<'Stock'> = products => ({
+  Stock: products.map(product => ({
     PutRequest: {
       Item: {
         product_id: {S: product.id},

@@ -49,13 +49,13 @@ export type PutRequest<T extends ProductItemPutRequest | StockItemPutRequest> =
     };
   };
 
-type Tables = 'products' | 'stocks';
+type Tables = 'Product' | 'Stock';
 
 export type BatchWriteItems<T extends Tables> = {
   [key in T]: PutRequest<
-    T extends 'products'
+    T extends 'Product'
       ? ProductItemPutRequest
-      : T extends 'stocks'
+      : T extends 'Stock'
       ? StockItemPutRequest
       : never
   >[];

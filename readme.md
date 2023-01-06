@@ -8,7 +8,7 @@ Requirements:
 
 - Clone repository;
 - Need aws cli configured with access key and secret access key;
-- Need the tables created with correct names *products* and *stocks*, check with 
+- Need the tables created with correct names *Product* and *Stock*, check with 
 ```bash
 npm run list-tables
 ```
