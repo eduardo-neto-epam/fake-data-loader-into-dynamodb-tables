@@ -1,3 +1,5 @@
+import {PRODUCTS_TABLE_NAME, STOCKS_TABLE_NAME} from './constants';
+
 type ProductId = {
   S: string;
 };
@@ -49,13 +51,13 @@ export type PutRequest<T extends ProductItemPutRequest | StockItemPutRequest> =
     };
   };
 
-type Tables = 'Product' | 'Stock';
+type Tables = typeof PRODUCTS_TABLE_NAME | typeof STOCKS_TABLE_NAME;
 
 export type BatchWriteItems<T extends Tables> = {
   [key in T]: PutRequest<
-    T extends 'Product'
+    T extends typeof PRODUCTS_TABLE_NAME
       ? ProductItemPutRequest
-      : T extends 'Stock'
+      : T extends typeof STOCKS_TABLE_NAME
       ? StockItemPutRequest
       : never
   >[];

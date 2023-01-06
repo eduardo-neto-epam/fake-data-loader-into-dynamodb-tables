@@ -1,4 +1,5 @@
 import {BatchWriteItems, Product} from '../types';
+import {PRODUCTS_TABLE_NAME} from '../constants';
 
 /**
  * Function that receives an array of products,
@@ -10,8 +11,8 @@ import {BatchWriteItems, Product} from '../types';
  */
 export const batchWriteProducts: (
   products: Product[]
-) => BatchWriteItems<'Product'> = products => ({
-  Product: products.map(product => ({
+) => BatchWriteItems<typeof PRODUCTS_TABLE_NAME> = products => ({
+  [PRODUCTS_TABLE_NAME]: products.map(product => ({
     PutRequest: {
       Item: {
         id: {S: product.id},

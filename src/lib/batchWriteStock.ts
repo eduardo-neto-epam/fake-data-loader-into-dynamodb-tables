@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {BatchWriteItems, Product} from '../types';
+import {STOCKS_TABLE_NAME} from '../constants';
 
 /**
  * Function that receives an array of products,
@@ -12,8 +13,8 @@ import {BatchWriteItems, Product} from '../types';
  */
 export const batchWriteStock: (
   products: Product[]
-) => BatchWriteItems<'Stock'> = products => ({
-  Stock: products.map(product => ({
+) => BatchWriteItems<typeof STOCKS_TABLE_NAME> = products => ({
+  [STOCKS_TABLE_NAME]: products.map(product => ({
     PutRequest: {
       Item: {
         product_id: {S: product.id},
