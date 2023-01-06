@@ -1,41 +1,81 @@
-import { writeFile } from 'fs';
+import {createInterface} from 'readline';
+import {exec} from 'child_process';
 
-import { faker } from '@faker-js/faker/locale/en_GB';
+import type {Product} from '../types';
+import {
+  createProduct,
+  writeJsonFileSync,
+  batchWriteStock,
+  batchWriteProducts,
+  validateUserInput,
+} from '../lib';
+import {JSON_FOLDER} from '../constants';
 
-import type { Product, Stock } from '../types';
+import {createDirIfNotExists} from '../lib/createDirIfNotExists';
+import {fillArray} from '../lib/fillArray';
 
-let products: Product[] = [];
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-const NUMBER_OF_PRODUCTS = 10;
+/**
+ * Callback function that takes the number of products requested as input
+ * and creates the appropriate json files to feed the bash scripts
+ * that will load the json data into the respective dynamoDB tables.
+ * @param x - string - user input with number of products to load.
+ */
+const loadXProducts = async (x: string) => {
+  try {
+    const NUMBER_OF_PRODUCTS = validateUserInput(x);
+    const products: Product[] = [];
 
-const createProduct = (): Product => {
-    return {
-        id: faker.datatype.uuid(),
-        title: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        price: Number(faker.commerce.price(10, 200, 0)),
-    }
-}
+    fillArray(products, NUMBER_OF_PRODUCTS, createProduct);
 
-const createStocks = (products: Product[]): Stock[] => {
-    return products.map((product) => ({
-        product_id: product.id,
-        count: faker.datatype.number({min: 0, max: 50}),
-    }))
-}
+    createDirIfNotExists(JSON_FOLDER);
 
-Array.from({ length: NUMBER_OF_PRODUCTS }).forEach(() => {
-    products.push(createProduct());
-  });
+    console.info(
+      `You have chosen to add ${NUMBER_OF_PRODUCTS} products to the products table!
+    Random stocks for each Product ID, will also be added to the stocks table! You welcome! ;)`
+    );
 
-const stocks: Stock[] = createStocks(products);
+    const PRODUCTS_JSON = JSON.stringify(batchWriteProducts(products), null, 4);
 
-const PRODUCTS_JSON = JSON.stringify(products);
+    const STOCKS_JSON = JSON.stringify(batchWriteStock(products), null, 4);
 
-const STOCKS_JSON = JSON.stringify(stocks);
+    writeJsonFileSync(PRODUCTS_JSON, 'products');
+    writeJsonFileSync(STOCKS_JSON, 'stocks');
 
-export const writeJsonFiles = () => {
-    writeFile('./products.json', PRODUCTS_JSON, 'utf8', () => console.log('PRODUCTS_JSON CREATED'))
-    writeFile('./stocks.json', STOCKS_JSON, 'utf8', () => console.log('STOCKS_JSON CREATED'))
-}
+    exec('sh ./bash_scripts/addProducts.sh', (error, stdout, stderr) => {
+      console.log(stdout);
+      console.log(stderr);
+      if (error !== null) {
+        throw new Error(`exec error: ${error}`);
+      }
+    });
 
+    exec('sh ./bash_scripts/addStocks.sh', (error, stdout, stderr) => {
+      console.log(stdout);
+      console.log(stderr);
+      if (error !== null) {
+        throw new Error(`exec error: ${error}`);
+      }
+    });
+    rl.close();
+  } catch (error) {
+    console.error(error);
+    rl.close();
+  }
+};
+
+/**
+ * Main function that asks the user through the terminal interface,
+ * how many products to load in dynamo tables,
+ * and then executes the callback with the user input.
+ */
+export const loadData = () => {
+  rl.question(
+    'How many products would you like? Between 1 and 20 please: ',
+    loadXProducts
+  );
+};

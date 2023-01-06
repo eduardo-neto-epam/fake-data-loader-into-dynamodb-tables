@@ -1,3 +1,3 @@
-import { writeJsonFiles } from "./Mocks/mock_data";
+import {loadData} from './mocks/mock_data';
 
-writeJsonFiles();
+loadData();
